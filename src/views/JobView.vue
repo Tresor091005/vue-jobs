@@ -19,6 +19,7 @@ const company = computed(() => state.job.company || {})
 
 onMounted(async () => {
     const apiUrl = process.env.API_URL;
+    console.log(apiUrl);
     try {
         const response = await axios.get(`${apiUrl}/jobs`);
         state.job = response.data;
