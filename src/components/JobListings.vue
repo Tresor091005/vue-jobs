@@ -18,12 +18,9 @@ const state = reactive({
     isLoading: true,
 })
 
-const apiUrl = process.env.API_URL;
-console.log(apiUrl);
-
 onMounted(async () => {
     try {
-        const response = await axios.get(`${apiUrl}/jobs`);
+        const response = await axios.get('https://vue-jobs-mu.vercel.app/api/jobs');
         state.jobs = response.data;
     } catch (error) {
         console.error('Error fetching jobs', error)
