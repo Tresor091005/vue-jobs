@@ -19,7 +19,7 @@ const state = reactive({
 })
 
 onMounted(async () => {
-    const apiUrl = process.env.API_URL || 'http://localhost:3000/api';
+    const apiUrl = process.env.API_URL;
     try {
         const response = await axios.get(`${apiUrl}/jobs`);
         state.jobs = response.data;
