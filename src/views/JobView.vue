@@ -19,7 +19,7 @@ const company = computed(() => state.job.company || {})
 
 onMounted(async () => {
     try {
-        const response = await axios.get('https://vue-jobs-mu.vercel.app/api/jobs');
+        const response = await axios.get(`https://vue-jobs-mu.vercel.app/api/jobs/${jobId}`);
         state.job = response.data;
     } catch (error) {
         console.error('Error fetching jobs', error)
