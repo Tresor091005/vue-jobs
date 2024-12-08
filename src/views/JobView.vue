@@ -18,8 +18,9 @@ const state = reactive({
 const company = computed(() => state.job.company || {})
 
 onMounted(async () => {
+    const apiUrl = process.env.API_URL || 'http://localhost:3000/api';
     try {
-        const response = await axios.get(`http://localhost:5000/jobs/${jobId}`);
+        const response = await axios.get(`${apiUrl}/jobs`);
         state.job = response.data;
     } catch (error) {
         console.error('Error fetching jobs', error)
