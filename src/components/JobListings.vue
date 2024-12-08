@@ -18,8 +18,10 @@ const state = reactive({
     isLoading: true,
 })
 
+const apiUrl = process.env.API_URL;
+console.log(apiUrl);
+
 onMounted(async () => {
-    const apiUrl = process.env.API_URL;
     try {
         const response = await axios.get(`${apiUrl}/jobs`);
         state.jobs = response.data;
