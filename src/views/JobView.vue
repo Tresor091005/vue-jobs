@@ -1,6 +1,7 @@
 <script setup>
-import { reactive, onMounted, computed } from 'vue';
-import { RouterLink, useRoute, useRouter } from 'vue-router';
+import {reactive, onMounted, computed} from 'vue';
+import {useToast} from "vue-toastification";
+import {RouterLink, useRoute, useRouter} from 'vue-router';
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
 import axios from 'axios';
 import BackButton from '../components/BackButton.vue';
@@ -9,101 +10,115 @@ import BackButton from '../components/BackButton.vue';
 const route = useRoute();
 const router = useRouter();
 const jobId = route.params.id;
+const toast = useToast();
 
 const state = reactive({
-    job: {},
-    isLoading: true
+  job: {},
+  isLoading: true
 })
+
+const deleteJob = async () => {
+  try {
+    await axios.delete(`/api/jobs/${state.job.id}`);
+    toast.success('Job Deleted Successfully');
+    router.push("/jobs");
+  } catch (error) {
+    console.error('Error deleting jobs', error);
+    toast.error('Job Not Deleted');
+  }
+}
 
 const company = computed(() => state.job.company || {})
 
 onMounted(async () => {
-    try {
-        const response = await axios.get(`https://vue-jobs-mu.vercel.app/api/jobs?id=${jobId}`);
-        state.job = response.data;
-    } catch (error) {
-        console.error('Error fetching jobs', error)
-        router.push('/404')
-    } finally {
-        setTimeout(()=>{
-            state.isLoading = false  
-        }, 700)  
-    }
+  try {
+    const response = await axios.get(`/api/jobs/${jobId}`);
+    state.job = response.data;
+  } catch (error) {
+    console.error('Error fetching jobs', error)
+    router.push('/404')
+  } finally {
+    setTimeout(() => {
+      state.isLoading = false
+    }, 700)
+  }
 })
 
 </script>
 <template>
-    <BackButton />
+  <BackButton/>
 
-    <section class="bg-green-50">
-        <div class="container m-auto py-10 px-6">
-            <div v-if="state.isLoading" class="text-center text-gray-500 py-6">
-                <PulseLoader />
+  <section class="bg-green-50">
+    <div class="container m-auto py-10 px-6">
+      <div v-if="state.isLoading" class="text-center text-gray-500 py-6">
+        <PulseLoader/>
+      </div>
+      <div v-else class="grid grid-cols-1 md:grid-cols-70/30 w-full gap-6">
+        <main>
+          <div class="bg-white p-6 rounded-lg shadow-md text-center md:text-left">
+            <div class="text-gray-500 mb-4">{{ state.job.type }}</div>
+            <h1 class="text-3xl font-bold mb-4">{{ state.job.title }}</h1>
+            <div class="text-gray-500 mb-4 flex align-middle justify-center md:justify-start">
+              <i class="bi bi-geo-alt text-lg text-orange-700 mr-2"></i>
+              <p class="text-orange-700">{{ state.job.location }}</p>
             </div>
-            <div v-else class="grid grid-cols-1 md:grid-cols-70/30 w-full gap-6">
-                <main>
-                    <div class="bg-white p-6 rounded-lg shadow-md text-center md:text-left">
-                        <div class="text-gray-500 mb-4">{{ state.job.type }}</div>
-                        <h1 class="text-3xl font-bold mb-4">{{ state.job.title }}</h1>
-                        <div class="text-gray-500 mb-4 flex align-middle justify-center md:justify-start">
-                            <i class="bi bi-geo-alt text-lg text-orange-700 mr-2"></i>
-                            <p class="text-orange-700">{{ state.job.location }}</p>
-                        </div>
-                    </div>
+          </div>
 
-                    <div class="bg-white p-6 rounded-lg shadow-md mt-6">
-                        <h3 class="text-green-800 text-lg font-bold mb-6">
-                            Job Description
-                        </h3>
+          <div class="bg-white p-6 rounded-lg shadow-md mt-6">
+            <h3 class="text-green-800 text-lg font-bold mb-6">
+              Job Description
+            </h3>
 
-                        <p class="mb-4">
-                            {{ state.job.description }}
-                        </p>
+            <p class="mb-4">
+              {{ state.job.description }}
+            </p>
 
-                        <h3 class="text-green-800 text-lg font-bold mb-2">Salary</h3>
+            <h3 class="text-green-800 text-lg font-bold mb-2">Salary</h3>
 
-                        <p class="mb-4">{{ state.job.salary }} / Year</p>
-                    </div>
-                </main>
+            <p class="mb-4">{{ state.job.salary }} / Year</p>
+          </div>
+        </main>
 
-                <!-- Sidebar -->
-                <aside>
-                    <!-- Company Info -->
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h3 class="text-xl font-bold mb-6">Company Info</h3>
+        <!-- Sidebar -->
+        <aside>
+          <!-- Company Info -->
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-xl font-bold mb-6">Company Info</h3>
 
-                        <h2 class="text-2xl">{{ company.name }}</h2>
+            <h2 class="text-2xl">{{ company.name }}</h2>
 
-                        <p class="my-2">
-                            {{ company.description }}
-                        </p>
+            <p class="my-2">
+              {{ company.description }}
+            </p>
 
-                        <hr class="my-4" />
+            <hr class="my-4"/>
 
-                        <h3 class="text-xl">Contact Email:</h3>
+            <h3 class="text-xl">Contact Email:</h3>
 
-                        <p class="my-2 bg-green-100 p-2 font-bold">
-                            {{ company.contactEmail }}
-                        </p>
+            <p class="my-2 bg-green-100 p-2 font-bold">
+              {{ company.contactEmail }}
+            </p>
 
-                        <h3 class="text-xl">Contact Phone:</h3>
+            <h3 class="text-xl">Contact Phone:</h3>
 
-                        <p class="my-2 bg-green-100 p-2 font-bold">{{company.contactPhone}}</p>
-                    </div>
+            <p class="my-2 bg-green-100 p-2 font-bold">{{ company.contactPhone }}</p>
+          </div>
 
-                    <!-- Manage -->
-                    <div class="bg-white p-6 rounded-lg shadow-md mt-6">
-                        <h3 class="text-xl font-bold mb-6">Manage Job</h3>
-                        <RouterLink :to="`/jobs/edit/${state.job.id}`"
-                            class="bg-green-500 hover:bg-green-600 text-white text-center font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block">Edit
-                            Job</RouterLink>
-                        <button
-                            class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block">
-                            Delete Job
-                        </button>
-                    </div>
-                </aside>
-            </div>
-        </div>
-    </section>
+          <!-- Manage -->
+          <div class="bg-white p-6 rounded-lg shadow-md mt-6">
+            <h3 class="text-xl font-bold mb-6">Manage Job</h3>
+            <RouterLink :to="`/jobs/edit/${state.job.id}`"
+                        class="bg-green-500 hover:bg-green-600 text-white text-center font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block">
+              Edit
+              Job
+            </RouterLink>
+            <button @click="deleteJob"
+                    class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block">
+              Delete Job
+            </button>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
 </template>
